@@ -1,0 +1,24 @@
+check for login
+
+if not logged in, can only view register/login page
+
+check for existing username when registering
+
+check for corresponding username and password
+
+if logged in, redirect to home page
+
+home page consists of all items for each user
+
+allow users to post new items
+redirect to add item page, then redirect page to home page after post
+
+when item is clicked
+bring to edit/delete page
+
+allow users to delete items
+delete item from database, redirect to home page
+
+allow users to edit items
+redirect to edit page, redirect back to home page after put edit
+
