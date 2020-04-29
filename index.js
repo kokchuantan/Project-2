@@ -52,32 +52,31 @@ app.use(cookieParser());
 
 let dateAt = moment().format('MMMM Do YYYY, h:mm:ss a');
 
-const checkUser = (userName,callback) => {
+const checkUser = (userName, callback) => {
     const whenQueryDone = (queryError, result) => {
         if (queryError) {
             console.log(queryError, 'error');
         } else {
-            if (result.rows) {
+            if (result.rows.length > 0) {
                 console.log('exists')
-                console.log (result.rows);
+                console.log(result.rows);
                 callback(true);
-            }
-            else{
+            } else {
                 console.log('new')
                 console.log(result.rows)
                 callback(false);
             }
         }
     };
-    const queryString = "SELECT * FROM users where username = ($1)";
+    const queryString = "SELECT * FROM users where username = ($1);";
     value = [userName];
     pool.query(queryString, value, whenQueryDone)
 };
 
 const addUser = (request, response) => {
     let userName = request.body.username;
-    let passWord = sha256(request.body.password);
-    checkUser(userName,checkUserResult => {
+    let passWord = request.body.password;
+    checkUser(userName, checkUserResult => {
         if (checkUserResult) {
             response.send('Username already exists!');
         } else {
@@ -87,7 +86,6 @@ const addUser = (request, response) => {
                     response.status(500);
                     response.send('error');
                 } else {
-                    request.cookies.user = userName;
                     response.redirect('/login');
                 }
             };
@@ -100,11 +98,27 @@ const addUser = (request, response) => {
 
 const loginUser = (request, response) => {
     let userName = request.body.username;
-    let passWord = sha256(request.body.password);
+    let passWord = request.body.password;
     const whenQueryDone = (queryError, result) => {
-        if (result.rows.password === passWord){
-            response.cookie.loggedIn = 'logged in'
-            response.redirect('/home');
+        if (result.rows.length > 0) {
+            if (result.rows[0].userpassword === passWord) {
+                console.log('1')
+                response.cookies('user',userName);
+                response.cookies('loggedIn','logged in');
+                response.redirect('/home');
+            } else if (queryError) {
+                console.log('2')
+                console.log('error', queryError)
+                response.send(queryError);
+            } else {
+                console.log('3')
+                console.log('wrong password')
+                response.redirect('/login');
+            }
+        }
+        else{
+            console.log('4');
+            response.redirect('/login');
         }
     };
     const queryString = "select * from users where username = $1;";
@@ -114,19 +128,24 @@ const loginUser = (request, response) => {
 
 app.get('/home', (request, response) => {
     //check logged in
-    const whenQueryDone = (queryError, result) => {
-        if (queryError) {
-            console.log(queryError, 'error');
-        } else {
-            data = {
-                list : result.rows
+    if (request.cookies.loggedIn === 'logged in') {
+        let userName = request.cookies.user;
+        const whenQueryDone = (queryError, result) => {
+            if (queryError) {
+                console.log(queryError, 'error');
+            } else {
+                data = {
+                    list: result.rows
+                }
+                response.render('index', data);
             }
-            response.render('index',data);
-        }
-    };
-    const queryString = "SELECT content FROM list INNER JOIN users ON (user.id = list.user_id) WHERE user.username = $1";
-    value = [userName];
-    pool.query(queryString, value, whenQueryDone)
+        };
+        const queryString = "SELECT content FROM list INNER JOIN users ON (users.id = list.user_id) WHERE users.username = $1;";
+        value = [userName];
+        pool.query(queryString, value, whenQueryDone)
+    } else {
+        response.redirect('/login')
+    }
 });
 
 app.get('/login', (request, response) => {
@@ -137,14 +156,15 @@ app.get('/register', (request, response) => {
 })
 app.post('/register', addUser);
 
-app.post('login', loginUser)
+app.post('/login', loginUser)
 
 app.get('/', (request, response) => {
-    //check if logged in
-    //if logged in
-    response.redirect('/home');
-    //not logged in 
-    response.redirect('/register');
+    if(request.cookies.loggedIn === 'logged in'){
+        response.redirect('/home');
+    }
+    else{
+        response.redirect('/register');
+    } 
 });
 
 
