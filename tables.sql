@@ -7,5 +7,11 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS list (
     id serial PRIMARY KEY,
     user_id int,
-    content text
+    content text,
+    category_id int
+);
+
+CREATE TABLE IF NOT EXISTS category (
+    id serial primary key,
+    name text
 );

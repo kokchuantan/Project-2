@@ -14,11 +14,14 @@ allow users to post new items
 redirect to add item page, then redirect page to home page after post
 
 when item is clicked
-bring to edit/delete page
+redirect to item page
 
 allow users to delete items
 delete item from database, redirect to home page
 
 allow users to edit items
 redirect to edit page, redirect back to home page after put edit
+
+allow users to favourite item
+redirect to home page, favourite items will appear on top
 
