@@ -44,7 +44,11 @@
 
 # Wireframing
 
+## Before Login
+
 ![Before login](img/beforeLogin.png)
+
+## After login
 
 ![After Login](img/afterLogin.png)
 
