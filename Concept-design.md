@@ -44,9 +44,9 @@
 
 # Wireframing
 
-![Before login](img/beforelogin.png)
+![Before login](img/beforeLogin.png)
 
-![After Login](img/afterlogin.png)
+![After Login](img/afterLogin.png)
 
 
 ---------------------------------------------------------------------------------------------------------------------------
