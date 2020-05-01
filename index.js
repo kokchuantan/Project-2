@@ -172,32 +172,40 @@ const checkCurrentUser = (userName, callback) => {
 app.get('/home', (request, response) => {
     if (request.cookies.loggedIn === 'true') {
         let userName = request.cookies.user;
-        const whenQueryDone = (queryError, result) => {
-            if (queryError) {
-                console.log(queryError, 'error');
-            } else {
-                const secondQuery = (error, results) => {
-                    if (error) {
-                        console.log(error, 'error');
+        checkCurrentUser(userName, checkUserId => {
+            if (checkUserId > 0) {
+                let userName = request.cookies.user;
+                const whenQueryDone = (queryError, result) => {
+                    if (queryError) {
+                        console.log(queryError, 'error');
                     } else {
-                        data = {
-                            list: result.rows,
-                            categories: results.rows,
-                            user: userName
-                        }
-
-                        response.render('index', data);
+                        const secondQuery = (error, results) => {
+                            if (error) {
+                                console.log(error, 'error');
+                            } else {
+                                data = {
+                                    list: result.rows,
+                                    categories: results.rows,
+                                    user: userName
+                                }
+                                console.log(result.rows)
+                                response.render('index', data);
+                            }
+                        };
+                        const query = "SELECT * FROM category;";
+                        pool.query(query, secondQuery)
                     }
                 };
-                const query = "SELECT * FROM category;";
-                pool.query(query, secondQuery)
+                const queryString = "SELECT * FROM list where user_id = $1;";
+                value = [checkUserId];
+                pool.query(queryString, value, whenQueryDone)
+            } else {
+                response.redirect('/');
             }
-        };
-        const queryString = "SELECT * FROM list INNER JOIN users ON (users.id = list.user_id) WHERE users.username = $1;";
-        value = [userName];
-        pool.query(queryString, value, whenQueryDone)
+        });
+
     } else {
-        response.redirect('/login')
+        response.redirect('/')
     }
 });
 app.get('/newPost', (request, response) => {
@@ -302,34 +310,55 @@ app.get('/post/:id', (request, response) => {
         let userName = request.cookies.user;
         checkCurrentUser(userName, checkUserId => {
             if (checkUserId > 0) {
-                console.log('2')
                 let postId = parseInt(request.params.id);
                 const whenQueryDone = (queryError, result) => {
                     if (queryError) {
                         console.log(queryError, 'error');
                     } else {
-                        console.log('3')
                         data = {
-                            user : userName,
+                            user: userName,
                             post: result.rows
                         }
                         console.log(data)
                         response.render('post', data);
                     }
                 };
-                console.log('4')
                 const queryString = "SELECT * FROM list where id = $1;";
                 value = [postId];
                 pool.query(queryString, value, whenQueryDone);
-            }else {
+            } else {
                 response.redirect('/');
-            } 
+            }
         })
-    }
-    else {
+    } else {
         response.redirect('/');
     }
 });
+
+app.delete('/post/:id', (request, response) => {
+    if (request.cookies.loggedIn === 'true') {
+        let userName = request.cookies.user;
+        checkCurrentUser(userName, checkUserId => {
+            if (checkUserId > 0) {
+                let postId = parseInt(request.params.id);
+                const whenQueryDone = (queryError) => {
+                    if (queryError) {
+                        console.log(queryError, 'error');
+                    } else {
+                        response.redirect('/home');
+                    }
+                };
+                const queryString = "delete FROM list where id = $1;";
+                value = [postId];
+                pool.query(queryString, value, whenQueryDone);
+            } else {
+                response.redirect('/');
+            }
+        })
+    } else {
+        response.redirect('/');
+    }
+})
 
 app.get('/logout', (request, response) => {
     response.clearCookie('user');
