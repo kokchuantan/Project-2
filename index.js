@@ -335,6 +335,62 @@ app.get('/post/:id', (request, response) => {
     }
 });
 
+app.get('/post/:id/edit', (request, response) => {
+    if (request.cookies.loggedIn === 'true') {
+        let userName = request.cookies.user;
+        checkCurrentUser(userName, checkUserId => {
+            if (checkUserId > 0) {
+                let postId = parseInt(request.params.id);
+                const whenQueryDone = (queryError, result) => {
+                    if (queryError) {
+                        console.log(queryError, 'error');
+                    } else {
+                        data = {
+                            user: userName,
+                            post: result.rows
+                        }
+                        console.log(data)
+                        response.render('edit', data);
+                    }
+                };
+                const queryString = "SELECT * FROM list where id = $1;";
+                value = [postId];
+                pool.query(queryString, value, whenQueryDone);
+            } else {
+                response.redirect('/');
+            }
+        })
+    } else {
+        response.redirect('/');
+    }
+});
+
+app.put('/post/:id', (request, response) => {
+    if (request.cookies.loggedIn === 'true') {
+        let userName = request.cookies.user;
+        let newContent = request.body.content;
+        checkCurrentUser(userName, checkUserId => {
+            if (checkUserId > 0) {
+                let postId = parseInt(request.params.id);
+                const whenQueryDone = (queryError) => {
+                    if (queryError) {
+                        console.log(queryError, 'error');
+                    } else {
+                        response.redirect('/home');
+                    }
+                };
+                const queryString = "update list set content = $1 where id = $2;";
+                values = [newContent,postId];
+                pool.query(queryString, values, whenQueryDone);
+            } else {
+                response.redirect('/');
+            }
+        })
+    } else {
+        response.redirect('/');
+    }
+})
+
 app.delete('/post/:id', (request, response) => {
     if (request.cookies.loggedIn === 'true') {
         let userName = request.cookies.user;
