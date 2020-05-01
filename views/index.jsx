@@ -5,7 +5,8 @@ class Home extends React.Component {
   {
     var currentUser = this.props.user.charAt(0).toUpperCase() + this.props.user.slice(1);
     const listItems = this.props.list.map((item)=>{
-        return <li>{item.content}</li>
+        var link = 'post/' + item.id;
+        return <li><a href = {link}>{item.content}</a></li>
       });
     const allCategories = this.props.categories.map((category)=>{
       return <option value={category.id}>{category.name}</option>
@@ -23,7 +24,7 @@ class Home extends React.Component {
             <div><h1>{currentUser}'s List</h1></div>
             <div class = 'row'>
             <form method="get" action="/newPost">
-            <button class  = 'btn btn-outline-success' type="submit">Create New Post</button>
+            <button class  = 'mr-2 ml-3 btn btn-outline-success' type="submit">Create New Post</button>
             </form>
             <form method="get" action="/logout">
             <button class = 'btn btn-outline-danger' type="submit">Log Out</button>
@@ -31,13 +32,13 @@ class Home extends React.Component {
             </div>
             <div><h6>Choose category:</h6></div>
             <div class = 'row'>
-            <form class = 'col-8'method="post" id = 'select' action="/category">
-            <select class="custom-select" name='cat'>
+                <form class = 'd-inline col-8'method="post" id = 'select' action="/category">
+                <select class="custom-select" name='cat'>
                 <option value = 'default'>Choose Category.</option>
                 {allCategories}
-            </select>
-            <button class = 'col-3 btn btn-outline-primary' type="submit">Sort Posts</button>
-            </form>
+                </select>
+                <button class = 'd-inline btn btn-outline-primary' type="submit">Sort Posts</button>
+                </form>
             </div>
             <div><ul>{listItems}</ul></div>  
             </div>  

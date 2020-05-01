@@ -103,7 +103,6 @@ const loginUser = (request, response) => {
         if (result.rows.length > 0) {
             if (result.rows[0].userpassword === passWord) {
                 console.log('1')
-                response.cookie('id', result.rows[0].id)
                 response.cookie('user', userName);
                 response.cookie('loggedIn', 'true');
                 response.redirect('/home');
@@ -143,7 +142,7 @@ const addPost = (request, response) => {
                     }
                 };
                 const queryString = "insert into list (user_id,content,category_id) values ($1,$2,$3) returning *;";
-                values = [userId, text, category_id];
+                values = [checkUserId, text, category_id];
                 pool.query(queryString, values, whenQueryDone)
             } else {
                 response.redirect('/');
@@ -242,7 +241,7 @@ app.get('/category', (request, response) => {
                         pool.query(query, secondQuery)
                     }
                 };
-                const queryString = "SELECT content FROM list where (category_id = $1 AND user_id = $2);";
+                const queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2);";
                 value = [category_id, checkUserId];
                 pool.query(queryString, value, whenQueryDone)
             }
@@ -275,7 +274,7 @@ app.post('/category', (request, response) => {
             if (request.body.cat === 'default') {
                 response.redirect('/home')
             } else {
-                queryString = "SELECT content FROM list where (category_id = $1 AND user_id = $2);";
+                queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2);";
                 values = [category_id, checkUserId];
                 pool.query(queryString, values, whenQueryDone)
             }
@@ -296,12 +295,41 @@ app.get('/register', (request, response) => {
     } else {
         response.render('register');
     }
-})
-app.post('/register', addUser);
+});
 
-app.post('/login', loginUser);
-
-app.post('/newPost', addPost);
+app.get('/post/:id', (request, response) => {
+    if (request.cookies.loggedIn === 'true') {
+        let userName = request.cookies.user;
+        checkCurrentUser(userName, checkUserId => {
+            if (checkUserId > 0) {
+                console.log('2')
+                let postId = parseInt(request.params.id);
+                const whenQueryDone = (queryError, result) => {
+                    if (queryError) {
+                        console.log(queryError, 'error');
+                    } else {
+                        console.log('3')
+                        data = {
+                            user : userName,
+                            post: result.rows
+                        }
+                        console.log(data)
+                        response.render('post', data);
+                    }
+                };
+                console.log('4')
+                const queryString = "SELECT * FROM list where id = $1;";
+                value = [postId];
+                pool.query(queryString, value, whenQueryDone);
+            }else {
+                response.redirect('/');
+            } 
+        })
+    }
+    else {
+        response.redirect('/');
+    }
+});
 
 app.get('/logout', (request, response) => {
     response.clearCookie('user');
@@ -317,6 +345,14 @@ app.get('/', (request, response) => {
         response.redirect('/register');
     }
 });
+
+app.post('/register', addUser);
+
+app.post('/login', loginUser);
+
+app.post('/newPost', addPost);
+
+
 
 
 /**
