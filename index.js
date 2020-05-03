@@ -343,11 +343,17 @@ app.get('/post/:id/edit', (request, response) => {
                     if (queryError) {
                         console.log(queryError, 'error');
                     } else {
-                        data = {
-                            user: userName,
-                            post: result.rows
+                        if (result.rows[0].time_completed) {
+                            response.redirect('/');
+                        } else {
+
+                            data = {
+                                user: userName,
+                                post: result.rows
+                            }
+                            response.render('edit', data);
                         }
-                        response.render('edit', data);
+
                     }
                 };
                 const queryString = "SELECT * FROM list where id = $1;";
