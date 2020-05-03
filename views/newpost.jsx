@@ -19,9 +19,12 @@ class newPost extends React.Component {
         <p>New Post:</p>
         <input type="text" name="content"/>
         <select class="custom-select" name='cat'>
-            {/* <option selected value = 'all'>Choose Category.</option> */}
             {allCategories}
         </select>
+        {/* <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name ='urgent'value="true"/>
+            <label class="form-check-label" for="inlineCheckbox1">Urgent</label>
+        </div> */}
         <input class = 'btn btn-primary' type="submit" value="Post"/>
     </form>
     <a class ='btn btn-outline-info' href = '/home'>Back to List</a>

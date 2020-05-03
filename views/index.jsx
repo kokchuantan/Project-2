@@ -6,8 +6,18 @@ class Home extends React.Component {
     var currentUser = this.props.user.charAt(0).toUpperCase() + this.props.user.slice(1);
     const listItems = this.props.list.map((item)=>{
         var link = 'post/' + item.id;
-        return <li><a href = {link}>{item.content}</a></li>
-      });
+        if(item.time_completed){
+          return <li><del><a href = {link}>{item.content}</a></del><br></br>Completed : {item.time_completed}</li>
+        }
+        else{
+          if (item.urgent === 1){
+            return <li class="font-weight-bold"><a href = {link}>{item.content}</a><br></br>Created : {item.time_created}</li>
+          }
+          else{
+            return <li><a href = {link}>{item.content}</a><br></br>Created : {item.time_created}</li>
+          }
+        }
+    });
     const allCategories = this.props.categories.map((category)=>{
       return <option value={category.id}>{category.name}</option>
         });

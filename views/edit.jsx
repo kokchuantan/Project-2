@@ -6,6 +6,18 @@ class Post extends React.Component {
     const link = "/post/"+this.props.post[0].id+"?_method=put";
     const postLink = '/post/' + this.props.post[0].id;
     var currentUser = this.props.user.charAt(0).toUpperCase() + this.props.user.slice(1);
+
+    if(this.props.post[0].time_completed > 0){
+      const completedButton = <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name = 'completed'value="true" disabled/>
+      <label class="form-check-label" for="inlineCheckbox2">Completed</label>
+    </div>
+    }else {
+      const completedButton = <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name = 'completed'value="true"/>
+      <label class="form-check-label" for="inlineCheckbox2">Completed</label>
+    </div>
+    }
     return (
     <html lang="en">
     <head>
@@ -21,7 +33,17 @@ class Post extends React.Component {
             <form method="POST" action={link}>
             <p>Post:</p>
             <input name="content" value={this.props.post[0].content}/>
-            <input type="submit" value="submit"/>
+            <br></br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name ='urgent'value="1"/>
+              <label class="form-check-label" for="inlineCheckbox1">Urgent</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name = 'completed'value="true"/>
+              <label class="form-check-label" for="inlineCheckbox2">Completed</label>
+            </div>
+            <br></br>
+            <input class = 'btn btn-outline-success'type="submit" value="submit"/>
             </form>
             <a href={postLink}>Return to post.</a>
         </div>

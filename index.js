@@ -89,7 +89,7 @@ const addUser = (request, response) => {
                     response.redirect('/login');
                 }
             };
-            const queryString = "insert into users (username,userpassword) values ($1,$2) returning *;";
+            const queryString = "insert into users (username,userpassword) values ($1,$2);";
             values = [userName, passWord];
             pool.query(queryString, values, whenQueryDone)
         }
@@ -141,8 +141,8 @@ const addPost = (request, response) => {
                         response.redirect('/home');
                     }
                 };
-                const queryString = "insert into list (user_id,content,category_id) values ($1,$2,$3) returning *;";
-                values = [checkUserId, text, category_id];
+                const queryString = "insert into list (user_id,content,category_id,time_created,urgent) values ($1,$2,$3,$4,$5) returning *;";
+                values = [checkUserId, text, category_id, dateAt, 0];
                 pool.query(queryString, values, whenQueryDone)
             } else {
                 response.redirect('/');
@@ -157,7 +157,6 @@ const checkCurrentUser = (userName, callback) => {
             console.log(queryError, 'error');
         } else {
             if (result.rows.length > 0) {
-                console.log(result.rows);
                 callback(result.rows[0].id);
             } else {
                 callback(queryError);
@@ -196,7 +195,7 @@ app.get('/home', (request, response) => {
                         pool.query(query, secondQuery)
                     }
                 };
-                const queryString = "SELECT * FROM list where user_id = $1;";
+                const queryString = "SELECT * FROM list where user_id = $1 order by urgent desc;";
                 value = [checkUserId];
                 pool.query(queryString, value, whenQueryDone)
             } else {
@@ -282,7 +281,7 @@ app.post('/category', (request, response) => {
             if (request.body.cat === 'default') {
                 response.redirect('/home')
             } else {
-                queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2);";
+                queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2) order by urgent desc;";
                 values = [category_id, checkUserId];
                 pool.query(queryString, values, whenQueryDone)
             }
@@ -292,14 +291,14 @@ app.post('/category', (request, response) => {
 
 app.get('/login', (request, response) => {
     if (request.cookies.loggedIn === 'true') {
-        response.redirect('/home');
+        response.redirect('/');
     } else {
         response.render('login');
     }
 });
 app.get('/register', (request, response) => {
     if (request.cookies.loggedIn === 'true') {
-        response.redirect('/home');
+        response.redirect('/');
     } else {
         response.render('register');
     }
@@ -319,7 +318,6 @@ app.get('/post/:id', (request, response) => {
                             user: userName,
                             post: result.rows
                         }
-                        console.log(data)
                         response.render('post', data);
                     }
                 };
@@ -349,7 +347,6 @@ app.get('/post/:id/edit', (request, response) => {
                             user: userName,
                             post: result.rows
                         }
-                        console.log(data)
                         response.render('edit', data);
                     }
                 };
@@ -376,12 +373,35 @@ app.put('/post/:id', (request, response) => {
                     if (queryError) {
                         console.log(queryError, 'error');
                     } else {
-                        response.redirect('/home');
+                        let link = '/post/' + request.params.id;
+                        response.redirect(link);
                     }
                 };
-                const queryString = "update list set content = $1 where id = $2;";
-                values = [newContent,postId];
-                pool.query(queryString, values, whenQueryDone);
+                if (request.body.urgent === '1') {
+                    if (request.body.completed === 'true') {
+                        const queryString = "update list set content = $1,urgent = $2, time_completed = $3 where id = $4;";
+                        values = [newContent, request.body.urgent, dateAt, postId];
+                        pool.query(queryString, values, whenQueryDone);
+                    } else {
+                        const queryString = "update list set content = $1,urgent = $2 where id = $3;";
+                        values = [newContent, request.body.urgent, postId];
+                        pool.query(queryString, values, whenQueryDone);
+                    }
+                } else if (request.body.completed === 'true') {
+                    if (request.body.urgent === '1') {
+                        const queryString = "update list set content = $1,urgent = $2, time_completed = $3 where id = $4;";
+                        values = [newContent, request.body.urgent, dateAt, postId];
+                        pool.query(queryString, values, whenQueryDone);
+                    } else {
+                        const queryString = "update list set content = $1,time_completed = $2, urgent = $3 where id = $4;";
+                        values = [newContent, dateAt, 0, postId];
+                        pool.query(queryString, values, whenQueryDone);
+                    }
+                } else {
+                    const queryString = "update list set content = $1,urgent = $2 where id = $3;";
+                    values = [newContent, 0, postId];
+                    pool.query(queryString, values, whenQueryDone);
+                }
             } else {
                 response.redirect('/');
             }
