@@ -7,16 +7,16 @@ class Post extends React.Component {
     const postLink = '/post/' + this.props.post[0].id;
     var currentUser = this.props.user.charAt(0).toUpperCase() + this.props.user.slice(1);
 
-    if(this.props.post[0].time_completed > 0){
-      const completedButton = <div class="form-check form-check-inline">
-      <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name = 'completed'value="true" disabled/>
-      <label class="form-check-label" for="inlineCheckbox2">Completed</label>
-    </div>
+    if(this.props.post[0].urgent === 1){
+      var urgentButton = <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name ='urgent'value="1" checked/>
+      <label class="form-check-label" for="inlineCheckbox1">Urgent</label>
+    </div>;
     }else {
-      const completedButton = <div class="form-check form-check-inline">
-      <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name = 'completed'value="true"/>
-      <label class="form-check-label" for="inlineCheckbox2">Completed</label>
-    </div>
+      var urgentButton = <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name ='urgent'value="1"/>
+      <label class="form-check-label" for="inlineCheckbox1">Urgent</label>
+    </div>;
     }
     return (
     <html lang="en">
@@ -34,10 +34,7 @@ class Post extends React.Component {
             <p>Post:</p>
             <input name="content" value={this.props.post[0].content}/>
             <br></br>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name ='urgent'value="1"/>
-              <label class="form-check-label" for="inlineCheckbox1">Urgent</label>
-            </div>
+            {urgentButton}
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name = 'completed'value="true"/>
               <label class="form-check-label" for="inlineCheckbox2">Completed</label>
