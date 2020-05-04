@@ -50,8 +50,6 @@ app.use(cookieParser());
  * ===================================
  */
 
-let dateAt = moment().format('MMMM Do YYYY, h:mm:ss a');
-
 const checkUser = (userName, callback) => {
     const whenQueryDone = (queryError, result) => {
         if (queryError) {
@@ -102,21 +100,17 @@ const loginUser = (request, response) => {
     const whenQueryDone = (queryError, result) => {
         if (result.rows.length > 0) {
             if (result.rows[0].userpassword === passWord) {
-                console.log('1')
                 response.cookie('user', userName);
                 response.cookie('loggedIn', 'true');
                 response.redirect('/home');
             } else if (queryError) {
-                console.log('2')
                 console.log('error', queryError)
                 response.send(queryError);
             } else {
-                console.log('3')
                 console.log('wrong password')
                 response.redirect('/login');
             }
         } else {
-            console.log('4');
             response.redirect('/login');
         }
     };
@@ -129,6 +123,7 @@ const addPost = (request, response) => {
     let userName = request.cookies.user;
     let text = request.body.content;
     let category_id = request.body.cat;
+    let dateAt = moment().format('MMMM Do YYYY, h:mm:ss a');
     if (request.cookies.loggedIn === 'true') {
         checkCurrentUser(userName, checkUserId => {
             if (checkUserId > 0) {
@@ -202,7 +197,6 @@ app.get('/home', (request, response) => {
                                     categories: results.rows,
                                     user: userName
                                 }
-                                console.log(result.rows)
                                 response.render('index', data);
                             }
                         };
@@ -210,7 +204,7 @@ app.get('/home', (request, response) => {
                         pool.query(query, secondQuery)
                     }
                 };
-                const queryString = "SELECT * FROM list where user_id = $1 order by urgent desc;";
+                const queryString = "SELECT * FROM list where user_id = $1 order by time_completed desc,urgent desc;";
                 value = [checkUserId];
                 pool.query(queryString, value, whenQueryDone)
             } else {
@@ -296,7 +290,7 @@ app.post('/category', (request, response) => {
             if (request.body.cat === 'default') {
                 response.redirect('/home')
             } else {
-                queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2) order by urgent desc;";
+                queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2) order by time_completed asc,urgent desc;";
                 values = [category_id, checkUserId];
                 pool.query(queryString, values, whenQueryDone)
             }
@@ -387,6 +381,7 @@ app.put('/post/:id', (request, response) => {
     if (request.cookies.loggedIn === 'true') {
         let userName = request.cookies.user;
         let newContent = request.body.content;
+        let dateAt = moment().format('MMMM Do YYYY, h:mm:ss a');
         checkCurrentUser(userName, checkUserId => {
             if (checkUserId > 0) {
                 let postId = parseInt(request.params.id);
