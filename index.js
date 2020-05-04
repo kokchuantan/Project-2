@@ -132,19 +132,34 @@ const addPost = (request, response) => {
     if (request.cookies.loggedIn === 'true') {
         checkCurrentUser(userName, checkUserId => {
             if (checkUserId > 0) {
-                const whenQueryDone = (queryError) => {
-                    if (queryError) {
-                        console.log(queryError, 'error');
-                        response.status(500);
-                        response.send('error');
-                    } else {
-                        response.redirect('/home');
-                    }
-                };
-                const queryString = "insert into list (user_id,content,category_id,time_created,urgent) values ($1,$2,$3,$4,$5) returning *;";
-                values = [checkUserId, text, category_id, dateAt, 0];
-                pool.query(queryString, values, whenQueryDone)
-            } else {
+                if (request.body.urgent === '1') {
+                    const whenQueryDone = (queryError) => {
+                        if (queryError) {
+                            console.log(queryError, 'error');
+                            response.status(500);
+                            response.send('error');
+                        } else {
+                            response.redirect('/home');
+                        }
+                    };
+                    const queryString = "insert into list (user_id,content,category_id,time_created,urgent) values ($1,$2,$3,$4,$5) returning *;";
+                    values = [checkUserId, text, category_id, dateAt, 1];
+                    pool.query(queryString, values, whenQueryDone)
+                }else{
+                    const whenQueryDone = (queryError) => {
+                        if (queryError) {
+                            console.log(queryError, 'error');
+                            response.status(500);
+                            response.send('error');
+                        } else {
+                            response.redirect('/home');
+                        }
+                    };
+                    const queryString = "insert into list (user_id,content,category_id,time_created,urgent) values ($1,$2,$3,$4,$5) returning *;";
+                    values = [checkUserId, text, category_id, dateAt, 0];
+                    pool.query(queryString, values, whenQueryDone)
+                }
+            }else {
                 response.redirect('/');
             }
         })
@@ -386,17 +401,17 @@ app.put('/post/:id', (request, response) => {
                 if (request.body.urgent === '1') {
                     if (request.body.completed === 'true') {
                         const queryString = "update list set content = $1,urgent = $2, time_completed = $3 where id = $4;";
-                        values = [newContent, request.body.urgent, dateAt, postId];
+                        values = [newContent, 1, dateAt, postId];
                         pool.query(queryString, values, whenQueryDone);
                     } else {
                         const queryString = "update list set content = $1,urgent = $2 where id = $3;";
-                        values = [newContent, request.body.urgent, postId];
+                        values = [newContent, 1, postId];
                         pool.query(queryString, values, whenQueryDone);
                     }
                 } else if (request.body.completed === 'true') {
                     if (request.body.urgent === '1') {
                         const queryString = "update list set content = $1,urgent = $2, time_completed = $3 where id = $4;";
-                        values = [newContent, request.body.urgent, dateAt, postId];
+                        values = [newContent, 1, dateAt, postId];
                         pool.query(queryString, values, whenQueryDone);
                     } else {
                         const queryString = "update list set content = $1,time_completed = $2, urgent = $3 where id = $4;";

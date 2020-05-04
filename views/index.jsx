@@ -11,7 +11,7 @@ class Home extends React.Component {
         }
         else{
           if (item.urgent === 1){
-            return <li class="font-weight-bold"><a href = {link}>{item.content}</a><br></br>Created : {item.time_created}</li>
+            return <li class="font-weight-bold"><a href = {link}>* {item.content} *</a><br></br>Created : {item.time_created}</li>
           }
           else{
             return <li><a href = {link}>{item.content}</a><br></br>Created : {item.time_created}</li>
@@ -27,6 +27,10 @@ class Home extends React.Component {
             <title>Home Page</title>
             <meta charset="utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+            <link rel="stylesheet" href="/styles.css"></link>
+            <link href='http://fonts.googleapis.com/css?family=Merienda+One' rel='stylesheet' type='text/css'></link>
+            <link href='http://fonts.googleapis.com/css?family=Cookie' rel='stylesheet' type='text/css'></link>
+            <link href='http://fonts.googleapis.com/css?family=Berkshire+Swash' rel='stylesheet' type='text/css'></link>
             <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>
         </head>
         <body>
@@ -40,7 +44,7 @@ class Home extends React.Component {
             <button class = 'btn btn-outline-danger' type="submit">Log Out</button>
             </form>
             </div>
-            <div><h6>Choose category:</h6></div>
+            <div><h5>Choose category:</h5></div>
             <div class = 'row'>
                 <form class = 'd-inline col-8'method="post" id = 'select' action="/category">
                 <select class="custom-select" name='cat'>
