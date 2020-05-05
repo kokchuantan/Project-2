@@ -117,7 +117,7 @@ const loginUser = (request, response) => {
     let userName = request.body.username;
     let passWord = request.body.password;
     const whenQueryDone = (queryError, result) => {
-        if (result.rows.length > 0) {
+        if (result.rows[0].length > 0) {
             if (result.rows[0].userpassword === passWord) {
                 response.cookie('user', userName);
                 response.cookie('loggedIn', 'true');
