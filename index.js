@@ -24,7 +24,7 @@ if (process.env.DATABASE_URL) {
 
 } else {
     // Initialise postgres client
-    const configs = {
+    var configs = {
         user: 'kokchuantan',
         host: '127.0.0.1',
         database: 'testdb',
