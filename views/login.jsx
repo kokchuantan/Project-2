@@ -12,7 +12,7 @@ class Login extends React.Component {
           <p>Username: </p>
           <input type="text" name="username"/>
           <p>Password: </p>
-            <input type="text" name="password"/>
+            <input type="password" name="password"/>
             <input type="submit" value="Log In"/>
     </form>
     </div>
