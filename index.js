@@ -3,15 +3,34 @@ const moment = require('moment');
 const methodOverride = require('method-override');
 const pg = require('pg');
 const sha256 = require('js-sha256');
+const url = require('url');
 
-// Initialise postgres client
-const configs = {
-    user: 'kokchuantan',
-    host: '127.0.0.1',
-    database: 'testdb',
-    port: 5432,
-};
+if (process.env.DATABASE_URL) {
 
+    //we need to take apart the url so we can set the appropriate configs
+
+    const params = url.parse(process.env.DATABASE_URL);
+    const auth = params.auth.split(':');
+
+    //make the configs object
+    var configs = {
+        user: auth[0],
+        password: auth[1],
+        host: params.hostname,
+        port: params.port,
+        database: params.pathname.split('/')[1],
+        ssl: true
+    };
+
+} else {
+    // Initialise postgres client
+    const configs = {
+        user: 'kokchuantan',
+        host: '127.0.0.1',
+        database: 'testdb',
+        port: 5432,
+    };
+}
 const pool = new pg.Pool(configs);
 
 pool.on('error', function (err) {
@@ -140,7 +159,7 @@ const addPost = (request, response) => {
                     const queryString = "insert into list (user_id,content,category_id,time_created,urgent) values ($1,$2,$3,$4,$5) returning *;";
                     values = [checkUserId, text, category_id, dateAt, 1];
                     pool.query(queryString, values, whenQueryDone)
-                }else{
+                } else {
                     const whenQueryDone = (queryError) => {
                         if (queryError) {
                             console.log(queryError, 'error');
@@ -154,7 +173,7 @@ const addPost = (request, response) => {
                     values = [checkUserId, text, category_id, dateAt, 0];
                     pool.query(queryString, values, whenQueryDone)
                 }
-            }else {
+            } else {
                 response.redirect('/');
             }
         })
@@ -256,6 +275,7 @@ app.get('/category', (request, response) => {
                         const query = "SELECT * from category;";
                         pool.query(query, secondQuery)
                     }
+                    ƒ
                 };
                 const queryString = "SELECT * FROM list where (category_id = $1 AND user_id = $2);";
                 value = [category_id, checkUserId];
@@ -481,7 +501,9 @@ app.post('/newPost', addPost);
  * Listen to requests on port 3000
  * ===================================
  */
-const server = app.listen(3000, () => console.log('~~~ Tuning in to the waves of port 3000 ~~~'));
+const PORT = process.env.PORT || 3000;
+
+const server = app.listen(PORT, () => console.log('~~~ Tuning in to the waves of port 3000 ~~~'));
 
 let onClose = function () {
 
