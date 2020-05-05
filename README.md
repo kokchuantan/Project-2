@@ -2,7 +2,7 @@
 
 ## Technologies
 
-HTML, CSS, Javascript, Bootstrap
+HTML, CSS, Javascript, Bootstrap, PSQL, REACT, Express.js, Node.js
 
 ## Description
 
